@@ -22,6 +22,4 @@ module.exports = function (app, passport, config) {
 
     // use these strategies
     passport.use( require('./passport/local')(app, config) );
-//    passport.use( require('./passport/google')(app, config) );
-//    passport.use( require('./passport/facebook')(app, config) );
 };
