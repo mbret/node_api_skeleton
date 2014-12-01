@@ -2,20 +2,24 @@
 /**
  * Module dependencies.
  */
-
+//var _ = require('lodash');
 var path = require('path');
 var extend = require('util')._extend;
-
+var winston = require('winston');
 var development = require('./env/development');
 var production = require('./env/production');
+// Require any waterline compatible adapters here
+var diskAdapter = require('sails-disk');
 
-/*******************************************
- *
- * Default configurations
- *
- *******************************************/
+var root = path.normalize(__dirname + '/..');
+
+
 var defaults = {
-    root: path.normalize(__dirname + '/..'),
+    root: root,
+
+    env: process.env.NODE_ENV || 'development',
+
+    port: process.env.PORT || 3000,
 
     notifier: {
         service: 'postmark',
@@ -26,43 +30,71 @@ var defaults = {
         key: 'POSTMARK_KEY'
     },
 
-    get server() {
-        return {
-            port: process.env.PORT || 3000
+    // Logs use winston
+    log: {
+        transports: [
+            new winston.transports.File({
+                level: 'debug',
+                filename: root + '/data/logs/logs.log',
+                handleExceptions: true,
+                json: false,
+                maxsize: 5242880, //5MB
+                maxFiles: 5,
+                colorize: false
+            }),
+            new winston.transports.Console({
+                level: 'debug',
+                handleExceptions: true,
+                json: false,
+                colorize: true
+            })
+        ]
+    },
+
+    views: {
+        engine: 'swig',
+        path: root + '/app/views',
+        assets: {
+            path: root + '/public/assets'
         }
     },
 
-    get views() {
-        return {
-            engine: 'swig',
-            path: this.root + '/app/views',
-            assets: {
-                path: this.root + '/public/assets'
+    responses: {
+        path: root + '/app/responses'
+
+    },
+
+    models: {
+        path: root + '/app/models'
+    },
+
+    session: {
+        secret: 'a05a8ds39d9524adfc77359b58e8792d'
+    },
+
+    plugins: {
+        path: root + '/app/plugins'
+    },
+
+    // ORM configuration
+    waterline: {
+        // Setup Adapters
+        // Creates named adapters that have have been required
+        adapters: {
+            'default': diskAdapter,
+            disk: diskAdapter
+        },
+
+        // Build Connections Config
+        // Setup connections using the named adapter configs
+        connections: {
+            myLocalDisk: {
+                adapter: 'disk'
             }
-        }
-    },
+        },
 
-    get responses() {
-        return {
-            path: this.root + '/app/responses'
-        }
-    },
-
-    get models() {
-        return {
-            path: this.root + '/app/models'
-        }
-    },
-
-    get session() {
-        return {
-            secret: 'a05a8ds39d9524adfc77359b58e8792d'
-        }
-    },
-
-    get plugins(){
-        return {
-            path: this.root + '/app/plugins'
+        defaults: {
+            migrate: 'drop'
         }
     }
 };
@@ -73,6 +105,6 @@ var defaults = {
  */
 
 module.exports = {
-    development: extend(development, defaults),
-    production: extend(production, defaults)
+    development: extend(defaults, development),
+    production: extend(defaults, production)
 }[process.env.NODE_ENV || 'development'];

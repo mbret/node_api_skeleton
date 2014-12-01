@@ -13,15 +13,16 @@ var methodOverride = require('method-override');
 var multer = require('multer');
 var swig = require('swig');
 var flash = require('connect-flash');
-var winston = require('winston');
 
-var env = process.env.NODE_ENV || 'development';
+
 
 /**
  * Expose
  */
 
 module.exports = function (app, passport, config) {
+
+
 
     // Compression middleware (should be placed before express.static)
     app.use(compression({
@@ -31,28 +32,34 @@ module.exports = function (app, passport, config) {
     // Static files middleware
     app.use( express.static(config.root + '/public') );
 
-    // Use winston on production
+    /*
+     * Init logs
+     */
+    // Logs morgan access log inside winston for production
     var log;
-    if (env === 'production') {
+    if (config.env === 'production') {
         log = {
             stream: {
                 write: function (message, encoding) {
-                    winston.info(message);
+                    app.logger.error(message);
                 }
             }
         };
-    } else {
+    }
+    // Logs normal access log with morgan in dev
+    else {
         log = 'dev';
     }
-
     // Don't log during tests
-    // Logging middleware
-    if (env !== 'test') app.use(morgan(log));
+    // HTTP Logging middleware
+    if (config.env !== 'test'){
+        app.use( morgan(log) );
+    }
 
     /*
      * Swig engine settings
      */
-    if (env === 'development' || env === 'test') {
+    if (config.env === 'development' || config.env === 'test') {
         swig.setDefaults({
             cache: false
         });
