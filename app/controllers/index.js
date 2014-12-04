@@ -1,4 +1,5 @@
 var Promise = require("bluebird");
+var LOGGER = require('winston');
 
 module.exports = {
 
@@ -17,6 +18,7 @@ module.exports = {
 
         // Log soomething
         app.logger.debug("This is a debug log");
+        app.logger.error("This is a debug log");
 
         // send json anyway
         req.wantsJSON = true;

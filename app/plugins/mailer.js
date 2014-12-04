@@ -1,3 +1,9 @@
-/**
- * Created by Maxime on 01/12/2014.
- */
+module.exports = {
+
+    dispatch: function(req, res, next){
+
+        return next();
+    }
+
+
+};

@@ -1,24 +1,28 @@
 
+// Express app
 var express = require('express');
+// App config
 var config = require('./config/config');
+// ORM
 var Waterline = require('waterline');
+// Authentication module
 var passport = require('passport');
 
+
+// Create app
 var app = express();
 
 app.set('port', config.port);
-
 app.config = config; // add config application object to express app (to avoid singleton of config)
-app.logger = require('./config/logger')(app); // Get and create first time logger object
 
+// LOGGER
+// This require will require one time winston and add loggers that habe been configured in /config
+app.logger = require('./config/logger')(app);
 
 // Instantiate a new instance of the ORM
 var orm = new Waterline();
 
-
-/*
- * Load the Waterline Models
- */
+// Load the Waterline Models
 require('fs').readdirSync( config.models.path ).forEach(function (file) {
     if (~file.indexOf('.js')){
         orm.loadCollection( require( config.models.path + '/' + file) )
@@ -55,7 +59,15 @@ orm.initialize( app.config.waterline , function(err, models) {
 
     // Bootstrap routes
     // load controllers
-    require('./config/routes')(app, passport, config);
+    var controllers = {};
+    require('fs').readdirSync( config.controllers.path ).forEach(function (file) {
+        if (~file.indexOf('.js')){
+            var controllerName = file.substr(0, file.length - '.js'.length);
+            var controller = require( config.controllers.path + '/' + file );
+            controllers[controllerName] = controller;
+        }
+    });
+    require('./config/routes')(app, passport, config, controllers);
     app.logger.debug('Routes configuration loaded');
 
     // Start Server

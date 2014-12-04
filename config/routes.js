@@ -1,23 +1,17 @@
-/*!
- * Module dependencies.
- */
-
-var indexController = require('../app/controllers/index');
-var authController = require('../app/controllers/auth');
 
 /**
  * Expose routes
  */
 
-module.exports = function (app, passport, config) {
+module.exports = function (app, passport, config, controllers) {
 
 
     // Index
-    app.get('/', indexController.index);
-    app.get('/example', indexController.example);
+    app.get('/', controllers.index.index);
+    app.get('/example', controllers.index.example);
 
     // Auth
-    app.post('/signin', authController.signin);
+    app.post('/signin', controllers.auth.signin);
 
     /**
      * Error handling
@@ -32,7 +26,8 @@ module.exports = function (app, passport, config) {
     });
 
     app.use(function (err, req, res, next) {
-        console.error(err.stack);
+        console.log('salut');
+//        console.error(err.stack);
         // error page
         res.sendServerError({ error: err.stack });
     });

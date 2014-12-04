@@ -33,18 +33,18 @@ var defaults = {
     // Logs use winston
     log: {
         transports: [
-            new winston.transports.File({
-                level: 'debug',
-                filename: root + '/data/logs/logs.log',
-                handleExceptions: true,
-                json: false,
-                maxsize: 5242880, //5MB
-                maxFiles: 5,
-                colorize: false
-            }),
+//            new winston.transports.File({
+//                level: 'debug',
+//                filename: root + '/data/logs/logs.log',
+//                handleExceptions: true,
+//                json: false,
+//                maxsize: 5242880, //5MB
+//                maxFiles: 5,
+//                colorize: false
+//            }),
             new winston.transports.Console({
                 level: 'debug',
-                handleExceptions: true,
+                handleExceptions: false,
                 json: false,
                 colorize: true
             })
@@ -74,6 +74,10 @@ var defaults = {
 
     plugins: {
         path: root + '/app/plugins'
+    },
+
+    controllers: {
+        path: root + '/app/controllers'
     },
 
     // ORM configuration
