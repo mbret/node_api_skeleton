@@ -1,24 +1,18 @@
-var Promise = require("bluebird");
-var LOGGER = require('winston');
 
 module.exports = {
-
-    index: function (req, res) {
-        res.sendOk({foo: 'bar'}, 'index');
-    },
 
     /**
      * This is a example route
      *
      */
-    example: function(req, res) {
+    test: function(req, res) {
 
         // get app
         var app = req.app;
 
-        // Log soomething
-        app.logger.debug("This is a debug log");
-        app.logger.error("This is a debug log");
+        // Get content of request body
+        app.logger.debug("Content of request body:", req.body);
+        app.logger.debug('Content of request body raw:', req.rawBody);
 
         // send json anyway
         req.wantsJSON = true;
@@ -41,7 +35,8 @@ module.exports = {
                 // Call a plugin method
                 bar: app.plugins.foo.bar(1, 2),
 
-                app: Object.keys(app)
+                app: Object.keys(app),
+                response: Object.keys(res)
             })
 
         }).catch(function(err){

@@ -17,7 +17,12 @@ app.config = config; // add config application object to express app (to avoid s
 
 // LOGGER
 // This require will require one time winston and add loggers that habe been configured in /config
-app.logger = require('./config/logger')(app);
+// app.logger = require('./config/logger')(app);
+// Winston is deactivated for now because of problem to display errors
+app.logger = console;
+app.logger.debug = console.log;
+app.logger.warn = console.log;
+app.logger.info = console.log;
 
 // Instantiate a new instance of the ORM
 var orm = new Waterline();
@@ -37,11 +42,25 @@ orm.initialize( app.config.waterline , function(err, models) {
     app.models = models.collections;
     app.connections = models.connections;
 
-    // Bootstrap passport config
-    require('./config/passport')(app, passport, config);
-    app.logger.debug('Passport module has been loaded');
+    // Express response object injection
+    // Injection of responses
+    // Check all files in responses and add the first method (with name as index) to
+    // response object
+    // ex /responses/sendOk.js with exports.ok = ... will give res.ok(..);
+    app.use(function (req, res, next){
+        require('fs').readdirSync( config.responses.path ).forEach(function (file) {
+            if (~file.indexOf('.js')){
+                var exported = require(config.responses.path + '/' + file);
+                res[exported.name] = exported;
+            }
+        });
+        return next();
+    });
+
 
     // Bootstrap application settings
+    // This config init all middleware of the express app
+    // Use this config file
     require('./config/express')(app, passport, config);
     app.logger.debug('Express application configuration done');
 
@@ -67,7 +86,7 @@ orm.initialize( app.config.waterline , function(err, models) {
             controllers[controllerName] = controller;
         }
     });
-    require('./config/routes')(app, passport, config, controllers);
+    require('./config/routes')(app, passport, controllers);
     app.logger.debug('Routes configuration loaded');
 
     // Start Server

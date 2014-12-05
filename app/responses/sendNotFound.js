@@ -8,9 +8,14 @@ module.exports = function sendNotFound (data, options) {
 
     res.status(404);
 
+    if( data === undefined) {
+        data = {};
+    }
+    if(!data.url) data.url = req.originalUrl;
+
     // If appropriate, serve data as JSON(P)
     if (req.wantsJSON) {
-        return res.jsonx(data);
+        return res.json( data );
     }
 
     // If second argument is a string, we take that to mean it refers to a view.

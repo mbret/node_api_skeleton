@@ -20,22 +20,29 @@ module.exports = function sendBadRequest(data, options) {
     // As we use res.sendOk() we can get the res reference inside function
     var req = this.req;
     var res = this;
+    var app = req.app;
 
     // Set status code
     res.status(400);
 
+    var winston = require('winston');
+
     // Log error to console
     if (data !== undefined) {
-        console.log('Sending 400 ("Bad Request") response: \n',data);
+        app.logger.debug('Sending 400 ("Bad Request") response: \n', data);
     }
-    else console.log('Sending 400 ("Bad Request") response');
+    else{
+        data = {};
+        app.logger.debug('Sending 400 ("Bad Request") response');
+    }
+
 
     // Only include errors in response if application environment
     // is not set to 'production'.  In production, we shouldn't
     // send back any identifying information about errors.
-//    if (sails.config.environment === 'production') {
-//        data = undefined;
-//    }
+    if (process.env.NODE_ENV === 'production') {
+        data = undefined;
+    }
 
     // If the user-agent wants JSON, always respond with JSON
     if (req.wantsJSON) {
