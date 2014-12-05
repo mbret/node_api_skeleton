@@ -119,6 +119,7 @@ module.exports = function (app, passport, config) {
     // Add to req.rawBody raw (text)
     // Handle raw content for Content-type text/plain and when content type is not present
     app.use(function (req, res, next) {
+        req.rawBody = '';
         // We take only content text/plain because other type ar handled by body-parser for raw
         var contentType = req.headers['content-type'] || ''
             , mime = contentType.split(';')[0];
